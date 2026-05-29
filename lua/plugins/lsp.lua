@@ -41,7 +41,7 @@ return {
           local opts = { buffer = bufnr, noremap = true, silent = true }
 
           -- Disable LSP formatting requests to prioritize Conform
-          if client.supports_method("textDocument/formatting") then
+          if client:supports_method("textDocument/formatting") then
              opts.desc = "LSP Formatting (Disabled, use Conform)"
              map({'n', 'v'}, "<leader>lf", "<cmd>echo 'Use Conform for formatting'<CR>", opts)
           end
