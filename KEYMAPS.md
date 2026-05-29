@@ -143,26 +143,6 @@ This document summarizes the primary keybindings configured in this Neovim setup
 | `<C-e>`     | Insert | Abort Completion             | `plugins/completion.lua` |
 | `<CR>`      | Insert | Confirm Selection            | `plugins/completion.lua` |
 
-### Molten (Jupyter Integration)
-
-*(These keybindings interact with the Molten plugin for Jupyter kernels)*
-*(Note: Cell-based commands marked with (?) might not work reliably when viewing raw `.ipynb` JSON files. Line/Selection evaluation is preferred in that view.)*
-
-| Key         | Mode           | Action                           | Defined In            |
-| :---------- | :------------- | :------------------------------- | :-------------------- |
-| `<leader>ji`| Normal         | Molten: Initialize/Attach Kernel | `plugins/molten.lua`  |
-| `<leader>jca`| Normal         | Molten: Select Kernel            | `plugins/molten.lua`  |
-| `<leader>jl`| Normal         | Molten: Evaluate Line            | `plugins/molten.lua`  |
-| `<leader>js`| Visual         | Molten: Evaluate Selection       | `plugins/molten.lua`  |
-| `<leader>jr`| Normal         | Molten: Re-evaluate Cell (?)     | `plugins/molten.lua`  |
-| `<leader>jc`| Normal         | Molten: Evaluate Cell (?)        | `plugins/molten.lua`  |
-| `<leader>jj`| Normal         | Molten: Evaluate Cell & Next (?) | `plugins/molten.lua`  |
-| `<leader>jn`| Normal         | Molten: Next Cell (?)            | `plugins/molten.lua`  |
-| `<leader>jp`| Normal         | Molten: Previous Cell (?)        | `plugins/molten.lua`  |
-| `<leader>jo`| Normal         | Molten: Clear Cell Output        | `plugins/molten.lua`  |
-| `<leader>jk`| Normal         | Molten: Interrupt Kernel         | `plugins/molten.lua`  |
-| `<leader>jR`| Normal         | Molten: Restart Kernel           | `plugins/molten.lua`  |
-
 ## III. Which-Key Discovery
 
 *   Press `<leader>` (Space) in Normal Mode and **wait** briefly to see a popup listing available mappings starting with `<leader>`. Groups like `Molten`, `Telescope`, `LSP` help organize the display.

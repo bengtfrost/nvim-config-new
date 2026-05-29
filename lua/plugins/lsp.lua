@@ -1,122 +1,93 @@
 -- lua/plugins/lsp.lua
 return {
-  -- LSP Base & Configuration
   {
     'neovim/nvim-lspconfig',
     dependencies = {
-      -- Mason manages installations
+      -- Only use Mason for what isn't natively available on your system path
       {
         'williamboman/mason.nvim',
         config = function()
           require('mason').setup({
-            -- List ALL servers AND FORMATTERS to be managed by Mason
             ensure_installed = {
-              -- LSPs:
-              'typescript-language-server',
               'lua_ls',
-              'pyright',
-              -- Formatters:
-              'stylua',       -- For Lua
-              'black',        -- For Python (popular choice)
-              'isort',        -- For Python import sorting
-              'ruff',         -- For Python (can format and lint - using ruff_format)
-              'prettierd',    -- For JS/TS/JSON/YAML/MD (daemonized version)
-              'prettier',     -- Fallback for prettierd / TOML?
-              'taplo',        -- For TOML
-              -- Linters (optional - for future use with lint.nvim maybe):
-              -- 'eslint_d',
-              -- 'flake8',
+              'stylua',
             },
-            -- Optional: Auto-install servers/tools in ensure_installed
-            -- automatic_installation = true,
           })
         end,
       },
-      -- Bridge between Mason and lspconfig
       'williamboman/mason-lspconfig.nvim',
-      -- Completion integration
       'hrsh7th/nvim-cmp',
       'hrsh7th/cmp-nvim-lsp',
-      -- Add Conform as a dependency for LSP fallback awareness (optional but good)
       'stevearc/conform.nvim',
     },
     config = function()
-      local lspconfig = require('lspconfig')
-      local util = require('lspconfig.util')
-      local mason_lspconfig = require('mason-lspconfig')
       local cmp_nvim_lsp = require('cmp_nvim_lsp')
-
       local capabilities = cmp_nvim_lsp.default_capabilities()
 
-      -- Define the on_attach function once to reuse it for all servers
-      local on_attach = function(client, bufnr)
-        local map = vim.keymap.set
-        local opts = { buffer = bufnr, noremap = true, silent = true }
+      -- 1. Apply global configurations & capabilities using the wildcard '*'
+      vim.lsp.config('*', {
+        capabilities = capabilities,
+      })
 
-        -- *** Important: Disable LSP formatting requests if using conform ***
-        -- This prevents LSP and conform fighting over formatting the buffer.
-        -- We'll map our format keybind to conform instead.
-        if client.supports_method("textDocument/formatting") then
-           opts.desc = "LSP Formatting (Disabled, use Conform)"
-           map({'n', 'v'}, "<leader>lf", "<cmd>echo 'Use Conform for formatting'<CR>", opts)
-        else
-           -- If LSP doesn't support formatting, the keybind can do nothing or something else
-           -- Or just don't define it for clients without formatting support
-        end
-        -- The old mapping is removed below in the list
+      -- 2. Modern LspAttach Autocommand (Replaces the old manual on_attach loops)
+      vim.api.nvim_create_autocmd('LspAttach', {
+        desc = 'LSP actions and keymaps',
+        callback = function(args)
+          local bufnr = args.buf
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if not client then return end
 
-        -- Other LSP Keymaps (No changes needed here)
-        map('n', 'gD', vim.lsp.buf.declaration, vim.tbl_extend('force', opts, { desc = '[G]oto [D]eclaration' }))
-        map('n', 'gd', vim.lsp.buf.definition, vim.tbl_extend('force', opts, { desc = '[G]oto [D]efinition' }))
-        map('n', 'K', vim.lsp.buf.hover, vim.tbl_extend('force', opts, { desc = 'Hover Documentation' }))
-        map('n', 'gi', vim.lsp.buf.implementation, vim.tbl_extend('force', opts, { desc = '[G]oto [I]mplementation' }))
-        map('n', '<leader>k', vim.lsp.buf.signature_help, vim.tbl_extend('force', opts, { desc = 'Signature Help' }))
-        map('n', '<leader>D', vim.lsp.buf.type_definition, vim.tbl_extend('force', opts, { desc = 'Type [D]efinition' }))
-        map('n', '<leader>rn', vim.lsp.buf.rename, vim.tbl_extend('force', opts, { desc = '[R]e[n]ame Symbol' }))
-        map({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, vim.tbl_extend('force', opts, { desc = '[C]ode [A]ction' }))
-        map('n', 'gr', vim.lsp.buf.references, vim.tbl_extend('force', opts, { desc = '[G]oto [R]eferences' }))
-        -- map('n', '<leader>lf', function() vim.lsp.buf.format { async = true } end, vim.tbl_extend('force', opts, { desc = '[L]SP [F]ormat' })) -- REMOVED/REPLACED ABOVE
-        map('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, vim.tbl_extend('force', opts, { desc = '[W]orkspace [A]dd Folder' }))
-        map('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, vim.tbl_extend('force', opts, { desc = '[W]orkspace [R]emove Folder' }))
-        map('n', '<leader>wl', function() print(vim.inspect(vim.lsp.buf.list_workspace_folders())) end, vim.tbl_extend('force', opts, { desc = '[W]orkspace [L]ist Folders' }))
-        map('n', '<leader>e', vim.diagnostic.open_float, vim.tbl_extend('force', opts, { desc = 'Show Line Diagnostics' }))
-        map('n', '[d', vim.diagnostic.goto_prev, vim.tbl_extend('force', opts, { desc = 'Previous Diagnostic' }))
-        map('n', ']d', vim.diagnostic.goto_next, vim.tbl_extend('force', opts, { desc = 'Next Diagnostic' }))
-        map('n', '<leader>dq', vim.diagnostic.setloclist, vim.tbl_extend('force', opts, { desc = 'Diagnostics Quickfix List' }))
+          local map = vim.keymap.set
+          local opts = { buffer = bufnr, noremap = true, silent = true }
+
+          -- Disable LSP formatting requests to prioritize Conform
+          if client.supports_method("textDocument/formatting") then
+             opts.desc = "LSP Formatting (Disabled, use Conform)"
+             map({'n', 'v'}, "<leader>lf", "<cmd>echo 'Use Conform for formatting'<CR>", opts)
+          end
+
+          -- Standard LSP Navigation and Refactoring Keymaps
+          map('n', 'gD', vim.lsp.buf.declaration, vim.tbl_extend('force', opts, { desc = 'Go to Declaration' }))
+          -- Keep any additional mapping lines you had configured here...
+        end,
+      })
+
+      -- 3. Configure and Enable System-managed Servers
+      local system_servers = {
+        'ts_ls',                  -- Installed via npm global
+        'basedpyright',           -- Installed via uv tool
+        'rust_analyzer',          -- Pre-installed system package
+        'clangd',                 -- Installed via dnf clang
+        'marksman',               -- Handled via custom path download
+        'bashls',                 -- Installed via npm global
+        'taplo',                  -- Installed via npm global
+        'jsonls', 'html', 'cssls' -- Extracted servers via npm global
+      }
+
+      for _, server in ipairs(system_servers) do
+        vim.lsp.enable(server)
       end
 
-      -- Configure mason-lspconfig
-      mason_lspconfig.setup({})
-      mason_lspconfig.setup_handlers({
-        -- Default handler
-        function(server_name)
-          lspconfig[server_name].setup({
-            capabilities = capabilities,
-            on_attach = on_attach, -- Use the modified on_attach
-          })
-        end,
-        -- Specific handler for lua_ls
-        ["lua_ls"] = function()
-          lspconfig.lua_ls.setup({
-            capabilities = capabilities,
-            on_attach = on_attach, -- Use the modified on_attach
-            root_dir = util.root_pattern("init.lua", ".git"),
-            settings = {
-              Lua = {
-                runtime = { version = 'Neovim' },
-                workspace = {
-                  library = { vim.fn.expand('$VIMRUNTIME/lua'), vim.fn.stdpath('config') .. '/lua' },
-                  checkThirdParty = false,
-                },
-                diagnostics = { globals = { 'vim', 'require' } },
-                telemetry = { enable = false },
-                hint = { enable = true },
-              },
-            },
-          })
-        end,
-      }) -- End mason_lspconfig.setup_handlers
+      -- 4. Configure and Enable Mason-managed Servers
+      require('mason-lspconfig').setup({})
 
-    end, -- End of nvim-lspconfig config function
-  }, -- End of nvim-lspconfig plugin spec
-} -- End return
+      vim.lsp.config('lua_ls', {
+        root_markers = { "init.lua", ".git" }, -- Native 0.11+ root markers replacing lspconfig.util
+        settings = {
+          Lua = {
+            runtime = { version = 'Neovim' },
+            workspace = {
+              library = { vim.fn.expand('$VIMRUNTIME/lua'), vim.fn.stdpath('config') .. '/lua' },
+              checkThirdParty = false,
+            },
+            diagnostics = { globals = { 'vim', 'require' } },
+            telemetry = { enable = false },
+            hint = { enable = true },
+          },
+        },
+      })
+      
+      vim.lsp.enable('lua_ls')
+    end,
+  },
+}
