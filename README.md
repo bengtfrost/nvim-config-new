@@ -1,1 +1,1 @@
-My private nvim configurations
+My private nvim configuration files
