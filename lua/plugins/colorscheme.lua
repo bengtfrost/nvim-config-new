@@ -8,7 +8,7 @@ return {
     config = function()
       require("nightfox").setup({
         options = {
-          transparent = false, -- Set to true if you prefer foot's native background/opacity
+          transparent = true, -- Set to true if you prefer foot's native background/opacity
           styles = {
             comments = "italic",
             keywords = "bold",

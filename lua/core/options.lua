@@ -52,6 +52,10 @@ opt.completeopt = 'menuone,noselect' -- Completion options
 opt.splitright = true     -- Vertical splits open to the right
 opt.splitbelow = true     -- Horizontal splits open below
 
+-- [[ Clipboard Sync ]]
+-- Syncs Neovim's unnamed register with the system clipboard via wl-clipboard
+opt.clipboard = "unnamedplus"
+
 -- [[ Cursor ]]
 -- Keep your cursor setting if you like it, or remove/comment if not needed
 -- vim.opt.guicursor = "n-v-c:ver25-Cursor,i-ci-ve:ver25-Cursor"
