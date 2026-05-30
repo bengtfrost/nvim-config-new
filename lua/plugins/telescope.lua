@@ -26,7 +26,7 @@ return {
       { '<leader>fh', '<cmd>Telescope help_tags<cr>',   desc = '[F]ind [H]elp' },
       { '<leader>fo', '<cmd>Telescope oldfiles<cr>',    desc = '[F]ind [O]ld Files' },
       { '<leader>fr', '<cmd>Telescope resume<cr>',      desc = '[F]ind [R]esume' },
-      { '<leader>fd', '<cmd>Telescope diagnostics<cr>', desc = '[F]ind [D]iagnostics' },
+      { '<leader>fD', '<cmd>Telescope diagnostics<cr>', desc = '[F]ind [D]iagnostics' },
       -- Add other common Telescope commands if desired:
       -- { '<leader>fc', '<cmd>Telescope git_commits<cr>', desc = '[F]ind Git [C]ommits' },
       -- { '<leader>fs', '<cmd>Telescope git_status<cr>',  desc = '[F]ind Git [S]tatus' },

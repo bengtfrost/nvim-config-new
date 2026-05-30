@@ -9,7 +9,6 @@ return {
           require("mason").setup()
         end,
       },
-      "williamboman/mason-lspconfig.nvim",
       "hrsh7th/nvim-cmp",
       "hrsh7th/cmp-nvim-lsp",
       "stevearc/conform.nvim",
@@ -134,10 +133,7 @@ return {
         vim.lsp.enable(server)
       end
 
-      -- 5. Mason-managed LSP servers
-      require("mason-lspconfig").setup({
-        ensure_installed = { "lua_ls" },
-      })
+      -- lua_ls is installed via Mason, enable it like the others
       vim.lsp.enable("lua_ls")
       vim.lsp.enable("taplo")
     end,

@@ -13,7 +13,6 @@ opt.sidescrolloff = 8     -- Minimum number of screen columns to keep to the lef
 -- [[ Look and Feel ]]
 opt.termguicolors = true -- Enable true color support in the terminal
 opt.background = "dark"  -- Use a dark background
-opt.syntax = "on"        -- Enable syntax highlighting
 
 -- [[ Tabs and Indentation ]]
 opt.tabstop = 2        -- Number of visual spaces per TAB

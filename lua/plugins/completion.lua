@@ -161,12 +161,4 @@ return {
     end, -- End of config function
   },     -- End of nvim-cmp plugin spec
 
-  -- LuaSnip engine definition (defined here so lazy.nvim manages it)
-  -- Note: Dependencies were listed under nvim-cmp, this is just for clarity
-  -- If you prefer, you can remove the spec below and just keep it in nvim-cmp's dependencies
-  {
-    'L3MON4D3/LuaSnip',
-    -- Ensure this is loaded when completion is needed or snippets are used
-    -- No specific event needed if it's a dependency of cmp which loads on InsertEnter
-  },
 } -- End of return table
