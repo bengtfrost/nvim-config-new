@@ -1,39 +1,41 @@
 -- lua/plugins/telescope.lua (Recommended: Using Latest Stable Tag)
 return {
   {
-    'nvim-telescope/telescope.nvim',
+    "nvim-telescope/telescope.nvim",
     -- Use a specific release tag for stability
-    tag = '0.1.8', -- Replace with the actual latest stable tag found on GitHub if needed
+    tag = "v0.2.1", -- Replace with the actual latest stable tag found on GitHub if needed
     -- branch = 'master', -- Commented out - use tag instead
-    lazy = true,   -- Keep lazy loading
+    lazy = true,  -- Keep lazy loading
     dependencies = {
       -- Plenary is essential
-      'nvim-lua/plenary.nvim',
+      "nvim-lua/plenary.nvim",
       -- Optional but recommended: FZF native sorter for performance
       {
-        'nvim-telescope/telescope-fzf-native.nvim',
+        "nvim-telescope/telescope-fzf-native.nvim",
         -- Build command for the native sorter
-        build = 'make',
+        build = "make",
         -- Only load if 'make' is available
-        cond = function() return vim.fn.executable 'make' == 1 end,
+        cond = function()
+          return vim.fn.executable("make") == 1
+        end,
       },
     },
     -- Keymaps defined here for lazy-loading and discoverability
     keys = {
-      { '<leader>ff', '<cmd>Telescope find_files<cr>',  desc = '[F]ind [F]iles' },
-      { '<leader>fg', '<cmd>Telescope live_grep<cr>',   desc = '[F]ind by [G]rep' },
-      { '<leader>fb', '<cmd>Telescope buffers<cr>',     desc = '[F]ind [B]uffers' },
-      { '<leader>fh', '<cmd>Telescope help_tags<cr>',   desc = '[F]ind [H]elp' },
-      { '<leader>fo', '<cmd>Telescope oldfiles<cr>',    desc = '[F]ind [O]ld Files' },
-      { '<leader>fr', '<cmd>Telescope resume<cr>',      desc = '[F]ind [R]esume' },
-      { '<leader>fD', '<cmd>Telescope diagnostics<cr>', desc = '[F]ind [D]iagnostics' },
+      { "<leader>ff", "<cmd>Telescope find_files<cr>",  desc = "[F]ind [F]iles" },
+      { "<leader>fg", "<cmd>Telescope live_grep<cr>",   desc = "[F]ind by [G]rep" },
+      { "<leader>fb", "<cmd>Telescope buffers<cr>",     desc = "[F]ind [B]uffers" },
+      { "<leader>fh", "<cmd>Telescope help_tags<cr>",   desc = "[F]ind [H]elp" },
+      { "<leader>fo", "<cmd>Telescope oldfiles<cr>",    desc = "[F]ind [O]ld Files" },
+      { "<leader>fr", "<cmd>Telescope resume<cr>",      desc = "[F]ind [R]esume" },
+      { "<leader>fD", "<cmd>Telescope diagnostics<cr>", desc = "[F]ind [D]iagnostics" },
       -- Add other common Telescope commands if desired:
       -- { '<leader>fc', '<cmd>Telescope git_commits<cr>', desc = '[F]ind Git [C]ommits' },
       -- { '<leader>fs', '<cmd>Telescope git_status<cr>',  desc = '[F]ind Git [S]tatus' },
     },
     -- Configuration function runs after the plugin is loaded
     config = function()
-      local telescope = require('telescope')
+      local telescope = require("telescope")
       telescope.setup({
         defaults = {
           -- General defaults
@@ -42,7 +44,7 @@ return {
           -- Path display settings can be useful
           -- path_display = { "truncate" },
           -- Layout strategy
-          layout_strategy = 'horizontal',
+          layout_strategy = "horizontal",
           layout_config = {
             horizontal = { preview_width = 0.55 },
             vertical = { mirror = false },
@@ -59,8 +61,11 @@ return {
             "node_modules/",
             "%.lock",
             "__pycache__/",
-            "%.ipynb",                        -- Common Python notebook extension
-            "%.o", "%.a", "%.out", "%.class", -- Compiled object files
+            "%.ipynb", -- Common Python notebook extension
+            "%.o",
+            "%.a",
+            "%.out",
+            "%.class", -- Compiled object files
           },
         },
         pickers = {
@@ -82,10 +87,10 @@ return {
         extensions = {
           -- Configuration for extensions like fzf
           fzf = {
-            fuzzy = true,                   -- Enable fuzzy finding
+            fuzzy = true,             -- Enable fuzzy finding
             override_generic_sorter = true, -- Override the generic sorter
-            override_file_sorter = true,    -- Override the file sorter
-            case_mode = "smart_case",       -- Smart case sensitivity
+            override_file_sorter = true, -- Override the file sorter
+            case_mode = "smart_case", -- Smart case sensitivity
           },
           -- Configure other extensions if loaded
         },
@@ -93,9 +98,9 @@ return {
 
       -- Load extensions after setup
       -- Ensures fzf integration works if fzf-native is installed and built
-      pcall(telescope.load_extension, 'fzf')
+      pcall(telescope.load_extension, "fzf")
       -- Load other extensions here, e.g.:
       -- pcall(telescope.load_extension, 'media_files')
     end, -- End config function
-  },     -- End telescope spec
-}        -- End return
+  },   -- End telescope spec
+}      -- End return
