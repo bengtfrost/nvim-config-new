@@ -12,8 +12,7 @@ Personal Neovim configuration. Tested on Fedora 44 / Sway with NVIM v0.12.2.
 ## Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/nvim-config ~/.config/nvim
-nvim
+git clone https://github.com/bengtfrost/nvim-config-new.git ~/.config/nvim
 ```
 
 lazy.nvim bootstraps itself on first launch. Install LSP servers via `:Mason`.
