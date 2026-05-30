@@ -30,9 +30,9 @@ return {
     -- If issues arise, this alternative targets the visual selection explicitly.
     -- map('v', '<leader>gc', "<cmd>'<,'>CommentToggle<CR>", { desc = 'Toggle comment selection' })
 
-     -- Custom block comment mapping
-     map({ 'n', 'v' }, '<leader>gb', function()
-       require('Comment.api').toggle.blockwise.current()
-     end, { desc = 'Toggle comment block' })
+    -- Custom block comment mapping
+    map({ 'n', 'v' }, '<leader>gb', function()
+      require('Comment.api').toggle.blockwise.current()
+    end, { desc = 'Toggle comment block' })
   end,
 }

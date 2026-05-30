@@ -30,6 +30,9 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup('plugins', {
   checker = { enabled = true, notify = false },
   change_detection = { enabled = true, notify = false },
+  rocks = {
+    hererocks = false, -- Disables hererocks execution and suppresses luarocks errors/warnings
+  },
 })
 
 -- [[ Disable Unused Default Providers ]]
@@ -44,7 +47,7 @@ vim.diagnostic.config({
   update_in_insert = false,
   severity_sort = true,
   float = {
-    source = "always",
+    source = true, -- was "always" in <0.10, now boolean
     border = "rounded",
   },
 })

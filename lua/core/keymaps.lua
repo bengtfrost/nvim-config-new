@@ -24,11 +24,11 @@ map('v', '<A-k>', ":m '<-2<cr>gv=gv", { desc = 'Move selection up' })
 
 -- [[ Editing ]]
 -- Stay in indent mode
-map('v', '<', '<gv', { desc = 'Indent line left (visual)'})
-map('v', '>', '>gv', { desc = 'Indent line right (visual)'})
+map('v', '<', '<gv', { desc = 'Indent line left (visual)' })
+map('v', '>', '>gv', { desc = 'Indent line right (visual)' })
 
 -- Paste without losing yanked text
-map('v', 'p', '"_dP', { desc = 'Paste without losing yank buffer (visual)'})
+map('v', 'p', '"_dP', { desc = 'Paste without losing yank buffer (visual)' })
 
 -- [[ Buffers / Files / Session ]]
 map('n', '<leader>s', '<cmd>w<cr>', vim.tbl_extend('force', opts, { desc = 'Save file' }))

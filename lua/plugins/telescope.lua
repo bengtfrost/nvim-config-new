@@ -5,7 +5,7 @@ return {
     -- Use a specific release tag for stability
     tag = '0.1.8', -- Replace with the actual latest stable tag found on GitHub if needed
     -- branch = 'master', -- Commented out - use tag instead
-    lazy = true, -- Keep lazy loading
+    lazy = true,   -- Keep lazy loading
     dependencies = {
       -- Plenary is essential
       'nvim-lua/plenary.nvim',
@@ -59,7 +59,7 @@ return {
             "node_modules/",
             "%.lock",
             "__pycache__/",
-            "%.ipynb", -- Common Python notebook extension
+            "%.ipynb",                        -- Common Python notebook extension
             "%.o", "%.a", "%.out", "%.class", -- Compiled object files
           },
         },
@@ -82,10 +82,10 @@ return {
         extensions = {
           -- Configuration for extensions like fzf
           fzf = {
-            fuzzy = true,                    -- Enable fuzzy finding
-            override_generic_sorter = true,  -- Override the generic sorter
-            override_file_sorter = true,     -- Override the file sorter
-            case_mode = "smart_case",        -- Smart case sensitivity
+            fuzzy = true,                   -- Enable fuzzy finding
+            override_generic_sorter = true, -- Override the generic sorter
+            override_file_sorter = true,    -- Override the file sorter
+            case_mode = "smart_case",       -- Smart case sensitivity
           },
           -- Configure other extensions if loaded
         },
@@ -97,5 +97,5 @@ return {
       -- Load other extensions here, e.g.:
       -- pcall(telescope.load_extension, 'media_files')
     end, -- End config function
-  }, -- End telescope spec
-} -- End return
+  },     -- End telescope spec
+}        -- End return

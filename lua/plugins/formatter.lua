@@ -16,17 +16,20 @@ return {
     },
     opts = {
       formatters_by_ft = {
+        -- Fixed: Run stylua via Mason or System Path
         lua = { "stylua" },
-        python = { "ruff_format" }, -- Leverages your blazing fast dnf ruff installation
-        javascript = { "prettier" },
-        typescript = { "prettier" },
-        javascriptreact = { "prettier" },
-        typescriptreact = { "prettier" },
-        json = { "prettier" },
-        yaml = { "prettier" },
+
+        -- Leverages your blazing fast ruff installation
+        python = { "ruff_format" },
+
+        -- Streamlined: Use dprint natively for all configurations and documents
+        json = { "dprint" },
+        yaml = { "dprint" },
         toml = { "taplo" },
-        markdown = { "prettier", "dprint" },
-        bash = { "shfmt" }, -- Leverages your native dnf shfmt package
+        markdown = { "dprint" },
+
+        -- Leverages your native shfmt package
+        bash = { "shfmt" },
       },
       format_on_save = {
         timeout_ms = 1000,

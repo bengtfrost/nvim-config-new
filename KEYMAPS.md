@@ -145,4 +145,4 @@ This document summarizes the primary keybindings configured in this Neovim setup
 
 ## III. Which-Key Discovery
 
-*   Press `<leader>` (Space) in Normal Mode and **wait** briefly to see a popup listing available mappings starting with `<leader>`. Groups like `Molten`, `Telescope`, `LSP` help organize the display.
+*   Press `<leader>` (Space) in Normal Mode and **wait** briefly to see a popup listing available mappings starting with `<leader>`. Groups like `Telescope`, `LSP` help organize the display.
