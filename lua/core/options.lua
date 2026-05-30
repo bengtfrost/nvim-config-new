@@ -56,9 +56,6 @@ opt.splitbelow = true -- Horizontal splits open below
 -- Syncs Neovim's unnamed register with the system clipboard via wl-clipboard
 opt.clipboard = "unnamedplus"
 
--- [[ Disable Obsolete Remote Plugin Providers ]]
-vim.g.loaded_node_provider = 0
-
 -- [[ Cursor ]]
 -- Keep your cursor setting if you like it, or remove/comment if not needed
 -- vim.opt.guicursor = "n-v-c:ver25-Cursor,i-ci-ve:ver25-Cursor"
