@@ -1,6 +1,6 @@
 # nvim-config
 
-Personal Neovim configuration. Tested on Debian 13 (Trixie) / Sway with NVIM v0.12.4.
+Personal Neovim configuration. Tested on Debian 13 (Trixie) / Suckless dwm and st terminal with NVIM v0.12.4.
 
 ## Requirements
 
