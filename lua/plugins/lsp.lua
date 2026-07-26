@@ -9,36 +9,85 @@ return {
           require("mason").setup()
         end,
       },
+      "williamboman/mason-lspconfig.nvim",
       "hrsh7th/nvim-cmp",
       "hrsh7th/cmp-nvim-lsp",
       "stevearc/conform.nvim",
+      "b0o/schemastore.nvim",
     },
     config = function()
       local cmp_nvim_lsp = require("cmp_nvim_lsp")
       local capabilities = cmp_nvim_lsp.default_capabilities()
 
-      -- 1. Apply global capabilities to all servers
+      -- Helper function to get system executable path
+      local function get_cmd(executable, args)
+        local path = vim.fn.exepath(executable)
+        if path == "" then
+          -- Check common installation paths
+          local common_paths = {
+            vim.fn.expand("~/.cargo/bin/" .. executable),
+            vim.fn.expand("~/.local/bin/" .. executable),
+            vim.fn.expand("~/.npm-global/bin/" .. executable),
+            "/usr/bin/" .. executable,
+            "/usr/local/bin/" .. executable,
+          }
+          for _, p in ipairs(common_paths) do
+            if vim.fn.executable(p) == 1 then
+              path = p
+              break
+            end
+          end
+          if path == "" then
+            vim.notify("Warning: " .. executable .. " not found in PATH", vim.log.levels.WARN)
+            return { executable }
+          end
+        end
+        if args then
+          return vim.list_extend({ path }, args)
+        end
+        return { path }
+      end
+
+      -- Helper function for taplo (special handling)
+      local function get_taplo_cmd()
+        local taplo_path = vim.fn.exepath("taplo")
+        if taplo_path == "" then
+          -- Check common cargo installation paths
+          local cargo_paths = {
+            vim.fn.expand("~/.cargo/bin/taplo"),
+            vim.fn.expand("~/.local/bin/taplo"),
+            "/usr/local/bin/taplo",
+            "/usr/bin/taplo",
+          }
+          for _, p in ipairs(cargo_paths) do
+            if vim.fn.executable(p) == 1 then
+              taplo_path = p
+              break
+            end
+          end
+          if taplo_path == "" then
+            vim.notify("Warning: taplo not found in PATH or common cargo locations", vim.log.levels.WARN)
+            return { "taplo", "lsp", "stdio" }
+          end
+        end
+        return { taplo_path, "lsp", "stdio" }
+      end
+
+      -- 1. Global capabilities for all LSP servers
       vim.lsp.config("*", {
         capabilities = capabilities,
       })
 
-      -- 2. Server-specific configurations (before vim.lsp.enable)
+      -- 2. Configure servers using vim.lsp.config
 
-      vim.lsp.config("rust_analyzer", {
-        cmd = { vim.fn.exepath("rust-analyzer") },
-        filetypes = { "rust" },
-        root_markers = { "Cargo.toml", "Cargo.lock" },
-      })
-
-      vim.lsp.config("marksman", {
-        filetypes = { "markdown" },
-      })
-
+      -- Lua
       vim.lsp.config("lua_ls", {
-        root_markers = { "init.lua", ".git" },
+        cmd = get_cmd("lua-language-server"),
+        filetypes = { "lua" },
+        root_markers = { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", "selene.toml", ".git" },
         settings = {
           Lua = {
-            runtime = { version = "Neovim" },
+            runtime = { version = "LuaJIT" },
             workspace = {
               library = {
                 vim.fn.expand("$VIMRUNTIME/lua"),
@@ -46,14 +95,148 @@ return {
               },
               checkThirdParty = false,
             },
-            diagnostics = { globals = { "vim", "require" } },
+            diagnostics = {
+              globals = { "vim", "require" },
+            },
             telemetry = { enable = false },
             hint = { enable = true },
           },
         },
       })
 
-      -- 3. LSP keymaps via LspAttach
+      -- Python
+      vim.lsp.config("basedpyright", {
+        cmd = get_cmd("basedpyright-langserver"),
+        filetypes = { "python" },
+        root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
+        settings = {
+          basedpyright = {
+            analysis = {
+              typeCheckingMode = "basic",
+              autoSearchPaths = true,
+              useLibraryCodeForTypes = true,
+              pythonPath = "/usr/bin/python3",
+            },
+          },
+        },
+      })
+
+      -- Rust
+      vim.lsp.config("rust_analyzer", {
+        cmd = get_cmd("rust-analyzer"),
+        filetypes = { "rust" },
+        root_markers = { "Cargo.toml", "Cargo.lock" },
+        settings = {
+          ["rust-analyzer"] = {
+            check = {
+              command = "clippy",
+            },
+          },
+        },
+      })
+
+      -- TypeScript/JavaScript - FIXED: args now properly passed
+      vim.lsp.config("ts_ls", {
+        cmd = get_cmd("typescript-language-server", { "--stdio" }),
+        filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+        root_markers = { "package.json", "tsconfig.json", ".git" },
+        -- Add these to prevent the server from looking for npm/yarn/pnpm
+        init_options = {
+          hostInfo = "neovim",
+        },
+      })
+
+      -- C/C++
+      vim.lsp.config("clangd", {
+        cmd = get_cmd("clangd"),
+        filetypes = { "c", "cpp", "objc", "objcpp" },
+        root_markers = { ".clangd", "compile_commands.json", "compile_flags.txt", ".git" },
+      })
+
+      -- Bash
+      vim.lsp.config("bashls", {
+        cmd = get_cmd("bash-language-server", { "start" }),
+        filetypes = { "sh", "bash" },
+        root_markers = { ".git" },
+      })
+
+      -- JSON
+      vim.lsp.config("jsonls", {
+        cmd = get_cmd("vscode-json-language-server", { "--stdio" }),
+        filetypes = { "json", "jsonc" },
+        root_markers = { ".git" },
+        settings = {
+          json = {
+            schemas = require("schemastore").json.schemas(),
+            validate = { enable = true },
+          },
+        },
+      })
+
+      -- HTML
+      vim.lsp.config("html", {
+        cmd = get_cmd("vscode-html-language-server", { "--stdio" }),
+        filetypes = { "html" },
+        root_markers = { ".git" },
+      })
+
+      -- CSS
+      vim.lsp.config("cssls", {
+        cmd = get_cmd("vscode-css-language-server", { "--stdio" }),
+        filetypes = { "css", "scss", "less" },
+        root_markers = { ".git" },
+      })
+
+      -- Markdown
+      vim.lsp.config("marksman", {
+        cmd = get_cmd("marksman"),
+        filetypes = { "markdown" },
+        root_markers = { ".git" },
+      })
+
+      -- TOML - Now using the general helper
+      vim.lsp.config("taplo", {
+        cmd = get_taplo_cmd(),
+        filetypes = { "toml" },
+        root_markers = { ".git" },
+        on_init = function(client, _)
+          client.server_capabilities.semanticTokensProvider = nil
+        end,
+      })
+
+      -- YAML
+      vim.lsp.config("yamlls", {
+        cmd = get_cmd("yaml-language-server", { "--stdio" }),
+        filetypes = { "yaml", "yml" },
+        root_markers = { ".git" },
+        settings = {
+          yaml = {
+            schemas = require("schemastore").yaml.schemas(),
+          },
+        },
+      })
+
+      -- 3. Enable all configured LSP servers
+      local servers_to_enable = {
+        "lua_ls",
+        "basedpyright",
+        "rust_analyzer",
+        "ts_ls",
+        "clangd",
+        "bashls",
+        "jsonls",
+        "html",
+        "cssls",
+        "marksman",
+        "taplo",
+        "yamlls",
+      }
+
+      for _, server in ipairs(servers_to_enable) do
+        vim.lsp.enable(server)
+      end
+
+      -- 4. LSP keymaps via LspAttach
       vim.api.nvim_create_autocmd("LspAttach", {
         desc = "LSP actions and keymaps",
         callback = function(args)
@@ -117,25 +300,17 @@ return {
         end,
       })
 
-      -- 4. Enable system-managed servers
-      local system_servers = {
-        "ts_ls",
-        "basedpyright",
-        "rust_analyzer",
-        "clangd",
-        "bashls",
-        "jsonls",
-        "html",
-        "cssls",
-        "marksman",
-      }
-      for _, server in ipairs(system_servers) do
-        vim.lsp.enable(server)
-      end
-
-      -- lua_ls is installed via Mason, enable it like the others
-      vim.lsp.enable("lua_ls")
-      vim.lsp.enable("taplo")
+      -- 5. Setup Mason (only for tools not installed system-wide)
+      require("mason").setup()
+      require("mason-lspconfig").setup({
+        ensure_installed = {},
+        automatic_installation = false,
+        handlers = {
+          function(server_name)
+            -- Skip all servers since they're installed system-wide
+          end,
+        },
+      })
     end,
   },
 }

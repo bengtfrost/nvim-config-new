@@ -24,16 +24,13 @@ return {
         "markdown",
         "markdown_inline",
       },
-    })
-
-    -- v1: highlight and indent are enabled via vim.treesitter directly
-    vim.api.nvim_create_autocmd("FileType", {
-      callback = function(args)
-        local ok = pcall(vim.treesitter.start, args.buf)
-        if not ok then
-          vim.bo[args.buf].syntax = "on"
-        end
-      end,
+      -- Enable these features
+      highlight = {
+        enable = true,
+      },
+      indent = {
+        enable = true,
+      },
     })
   end,
 }

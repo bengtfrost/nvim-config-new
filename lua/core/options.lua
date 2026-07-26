@@ -1,39 +1,39 @@
 -- lua/core/options.lua
-
-local opt = vim.opt -- Sshortcut for vim.opt
+local opt = vim.opt
 
 -- [[ Context ]]
-opt.number = true         -- Show line numbers
-opt.relativenumber = true -- Show relative line numbers
-opt.cursorline = true     -- Highlight the current line
-opt.signcolumn = "yes"    -- Always show the signcolumn, otherwise it would shift the text
-opt.scrolloff = 8         -- Minimum number of screen lines to keep above and below the cursor
-opt.sidescrolloff = 8     -- Minimum number of screen columns to keep to the left and right of the cursor
+opt.number = true
+opt.relativenumber = true
+opt.cursorline = true
+opt.signcolumn = "yes"
+opt.scrolloff = 8
+opt.sidescrolloff = 8
 
 -- [[ Look and Feel ]]
-opt.termguicolors = true -- Enable true color support in the terminal
-opt.background = "dark"  -- Use a dark background
+opt.termguicolors = true
+opt.background = "dark"
 
 -- [[ Tabs and Indentation ]]
-opt.tabstop = 2        -- Number of visual spaces per TAB
-opt.softtabstop = 2    -- Number of spaces TAB counts for while editing
-opt.shiftwidth = 2     -- Size of an indent
-opt.expandtab = true   -- Use spaces instead of tabs
-opt.autoindent = true  -- Copy indent from current line when starting new line
-opt.smartindent = true -- Makes indenting smart
+opt.tabstop = 2
+opt.softtabstop = 2
+opt.shiftwidth = 2
+opt.expandtab = true
+opt.autoindent = true
+opt.smartindent = true
 
 -- [[ Search ]]
-opt.ignorecase = true -- Ignore case when searching
-opt.smartcase = true  -- Don't ignore case if search pattern contains uppercase letters
-opt.hlsearch = true   -- Highlight search results
-opt.incsearch = true  -- Show search results incrementally
+opt.ignorecase = true
+opt.smartcase = true
+opt.hlsearch = true
+opt.incsearch = true
 
 -- [[ Files, Backup, Swap ]]
-opt.backup = false      -- No backup files
-opt.writebackup = false -- No backup files during write
-opt.swapfile = false    -- No swap files
-opt.undofile = true     -- Enable persistent undo
--- Create undo directory if it doesn't exist
+opt.backup = false
+opt.writebackup = false
+opt.swapfile = false
+opt.undofile = true
+
+-- Create undo directory
 local undodir = vim.fn.stdpath("data") .. "/undodir"
 if vim.fn.isdirectory(undodir) == 0 then
   vim.fn.mkdir(undodir, "p")
@@ -41,27 +41,23 @@ end
 opt.undodir = undodir
 
 -- [[ Performance / Behavior ]]
-opt.hidden = true                    -- Allow hidden buffers
-opt.shortmess:append("I")            -- Disable startup message (keep your original)
-opt.updatetime = 250                 -- Faster completion triggering (default is 4000ms)
-opt.timeoutlen = 500                 -- Time to wait for a mapped sequence to complete (in ms)
-opt.completeopt = "menuone,noselect" -- Completion options
+opt.hidden = true
+opt.shortmess:append("I")
+opt.updatetime = 250
+opt.timeoutlen = 500
+opt.completeopt = "menuone,noselect"
 
 -- [[ Splitting ]]
-opt.splitright = true -- Vertical splits open to the right
-opt.splitbelow = true -- Horizontal splits open below
+opt.splitright = true
+opt.splitbelow = true
 
 -- [[ Clipboard Sync ]]
--- Syncs Neovim's unnamed register with the system clipboard via wl-clipboard
-opt.clipboard = "unnamedplus"
+-- For Wayland (wl-clipboard) and X11 (xclip)
+if vim.fn.executable("wl-copy") == 1 then
+  opt.clipboard = "unnamedplus"
+elseif vim.fn.executable("xclip") == 1 then
+  opt.clipboard = "unnamedplus"
+end
 
--- [[ Cursor ]]
--- Keep your cursor setting if you like it, or remove/comment if not needed
--- vim.opt.guicursor = "n-v-c:ver25-Cursor,i-ci-ve:ver25-Cursor"
-
--- Python Host Program (optional, Neovim often finds it automatically)
--- If you MUST specify, use vim.fn.executable to check if it exists
--- local python_path = '/home/febf/Utveckling/Python/venv/venv_py3.12/lsp_pynvim/bin/python'
--- if vim.fn.executable(python_path) == 1 then
---   vim.g.python3_host_prog = python_path
--- end
+-- [[ Mouse Support ]]
+opt.mouse = "a" -- Enable mouse support
