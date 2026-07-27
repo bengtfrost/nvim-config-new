@@ -1,4 +1,4 @@
--- lua/plugins/formatter.lua
+-- lua/plugins/formatter.lua (with markdown disabled)
 return {
   {
     'stevearc/conform.nvim',
@@ -16,27 +16,25 @@ return {
     },
     opts = {
       formatters_by_ft = {
-        -- Fixed: Run stylua via Mason or System Path
         lua = { "stylua" },
-
-        -- Leverages your blazing fast ruff installation
         python = { "ruff_format" },
-
-        -- Streamlined: Use dprint natively for all configurations and documents
         json = { "dprint" },
         yaml = { "dprint" },
         toml = { "taplo" },
-        markdown = { "dprint" },
-
-        -- Leverages your native shfmt package
+        -- markdown = { "dprint" },  -- Comment out or remove
         bash = { "shfmt" },
+        c = { "clang-format" },
+        cpp = { "clang-format" },
       },
       format_on_save = {
-        timeout_ms = 1000,
+        timeout_ms = 2000,
         lsp_fallback = "always",
       },
       formatters = {
         shfmt = { args = { "-i", "2" } },
+        ["clang-format"] = {
+          args = { "--style=llvm", "-assume-filename", "$FILENAME" },
+        },
       },
     },
   },
