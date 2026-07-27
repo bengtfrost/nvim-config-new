@@ -55,6 +55,10 @@ vim.diagnostic.config({
 -- Ensure sign column is always present to prevent text jitter
 vim.opt.signcolumn = "yes:1"
 
+-- [[ Reduce LSP logging verbosity (show only warnings and errors) ]]
+-- New API for Neovim 0.12+
+vim.lsp.log.set_level("warn")
+
 -- [[ Auto Commands ]]
 
 -- Highlight yanked text briefly
