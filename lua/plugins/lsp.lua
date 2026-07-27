@@ -55,6 +55,9 @@ return {
           -- Check common cargo installation paths
           local cargo_paths = {
             vim.fn.expand("~/.cargo/bin/taplo"),
+            vim.fn.expand("~/.local/bin/taplo"),
+            "/usr/local/bin/taplo",
+            "/usr/bin/taplo",
           }
           for _, p in ipairs(cargo_paths) do
             if vim.fn.executable(p) == 1 then
@@ -81,15 +84,7 @@ return {
       vim.lsp.config("lua_ls", {
         cmd = get_cmd("lua-language-server"),
         filetypes = { "lua" },
-        root_markers = {
-          ".luarc.json",
-          ".luarc.jsonc",
-          ".luacheckrc",
-          ".stylua.toml",
-          "stylua.toml",
-          "selene.toml",
-          ".git",
-        },
+        root_markers = { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", "selene.toml", ".git" },
         settings = {
           Lua = {
             runtime = { version = "LuaJIT" },
@@ -140,12 +135,11 @@ return {
         },
       })
 
-      -- TypeScript/JavaScript - FIXED: args now properly passed
+      -- TypeScript/JavaScript
       vim.lsp.config("ts_ls", {
         cmd = get_cmd("typescript-language-server", { "--stdio" }),
         filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
         root_markers = { "package.json", "tsconfig.json", ".git" },
-        -- Add these to prevent the server from looking for npm/yarn/pnpm
         init_options = {
           hostInfo = "neovim",
         },
@@ -156,6 +150,10 @@ return {
         cmd = get_cmd("clangd"),
         filetypes = { "c", "cpp", "objc", "objcpp" },
         root_markers = { ".clangd", "compile_commands.json", "compile_flags.txt", ".git" },
+        -- Suppress the offsetEncoding warning
+        on_init = function(client, _)
+          client.server_capabilities.offsetEncoding = { "utf-8" }
+        end,
       })
 
       -- Bash
@@ -199,7 +197,7 @@ return {
         root_markers = { ".git" },
       })
 
-      -- TOML - Now using the general helper
+      -- TOML
       vim.lsp.config("taplo", {
         cmd = get_taplo_cmd(),
         filetypes = { "toml" },
@@ -255,101 +253,53 @@ return {
           local opts = { buffer = bufnr, noremap = true, silent = true }
 
           if client:supports_method("textDocument/formatting") then
-            map(
-              { "n", "v" },
-              "<leader>lf",
+            map({ "n", "v" }, "<leader>lf",
               "<cmd>echo 'Use Conform for formatting (<leader>fd)'<CR>",
-              vim.tbl_extend("force", opts, { desc = "LSP Formatting (Disabled, use Conform)" })
-            )
+              vim.tbl_extend("force", opts, { desc = "LSP Formatting (Disabled, use Conform)" }))
           end
 
           -- Navigation
-          map(
-            "n",
-            "gD",
-            vim.lsp.buf.declaration,
-            vim.tbl_extend("force", opts, { desc = "Go to Declaration" })
-          )
-          map("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to Definition" }))
-          map(
-            "n",
-            "gi",
-            vim.lsp.buf.implementation,
-            vim.tbl_extend("force", opts, { desc = "Go to Implementation" })
-          )
-          map("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Go to References" }))
-          map(
-            "n",
-            "<leader>D",
-            vim.lsp.buf.type_definition,
-            vim.tbl_extend("force", opts, { desc = "Go to Type Definition" })
-          )
+          map("n", "gD", vim.lsp.buf.declaration,
+            vim.tbl_extend("force", opts, { desc = "Go to Declaration" }))
+          map("n", "gd", vim.lsp.buf.definition,
+            vim.tbl_extend("force", opts, { desc = "Go to Definition" }))
+          map("n", "gi", vim.lsp.buf.implementation,
+            vim.tbl_extend("force", opts, { desc = "Go to Implementation" }))
+          map("n", "gr", vim.lsp.buf.references,
+            vim.tbl_extend("force", opts, { desc = "Go to References" }))
+          map("n", "<leader>D", vim.lsp.buf.type_definition,
+            vim.tbl_extend("force", opts, { desc = "Go to Type Definition" }))
 
           -- Hover & Signature
-          map("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover Documentation" }))
-          map(
-            "n",
-            "<leader>k",
-            vim.lsp.buf.signature_help,
-            vim.tbl_extend("force", opts, { desc = "Signature Help" })
-          )
+          map("n", "K", vim.lsp.buf.hover,
+            vim.tbl_extend("force", opts, { desc = "Hover Documentation" }))
+          map("n", "<leader>k", vim.lsp.buf.signature_help,
+            vim.tbl_extend("force", opts, { desc = "Signature Help" }))
 
           -- Refactoring
-          map(
-            "n",
-            "<leader>rn",
-            vim.lsp.buf.rename,
-            vim.tbl_extend("force", opts, { desc = "Rename Symbol" })
-          )
-          map(
-            { "n", "v" },
-            "<leader>ca",
-            vim.lsp.buf.code_action,
-            vim.tbl_extend("force", opts, { desc = "Code Action" })
-          )
+          map("n", "<leader>rn", vim.lsp.buf.rename,
+            vim.tbl_extend("force", opts, { desc = "Rename Symbol" }))
+          map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action,
+            vim.tbl_extend("force", opts, { desc = "Code Action" }))
 
           -- Workspace
-          map(
-            "n",
-            "<leader>wa",
-            vim.lsp.buf.add_workspace_folder,
-            vim.tbl_extend("force", opts, { desc = "Workspace: Add Folder" })
-          )
-          map(
-            "n",
-            "<leader>wr",
-            vim.lsp.buf.remove_workspace_folder,
-            vim.tbl_extend("force", opts, { desc = "Workspace: Remove Folder" })
-          )
+          map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder,
+            vim.tbl_extend("force", opts, { desc = "Workspace: Add Folder" }))
+          map("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder,
+            vim.tbl_extend("force", opts, { desc = "Workspace: Remove Folder" }))
           map("n", "<leader>wl", function()
             print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
           end, vim.tbl_extend("force", opts, { desc = "Workspace: List Folders" }))
 
           -- Diagnostics
-          map(
-            "n",
-            "<leader>e",
-            vim.diagnostic.open_float,
-            vim.tbl_extend("force", opts, { desc = "Show Line Diagnostics" })
-          )
-          map(
-            "n",
-            "[d",
-            vim.diagnostic.goto_prev,
-            vim.tbl_extend("force", opts, { desc = "Previous Diagnostic" })
-          )
-          map(
-            "n",
-            "]d",
-            vim.diagnostic.goto_next,
-            vim.tbl_extend("force", opts, { desc = "Next Diagnostic" })
-          )
-          map(
-            "n",
-            "<leader>dq",
-            vim.diagnostic.setloclist,
-            vim.tbl_extend("force", opts, { desc = "Diagnostics Quickfix List" })
-          )
+          map("n", "<leader>e", vim.diagnostic.open_float,
+            vim.tbl_extend("force", opts, { desc = "Show Line Diagnostics" }))
+          map("n", "[d", vim.diagnostic.goto_prev,
+            vim.tbl_extend("force", opts, { desc = "Previous Diagnostic" }))
+          map("n", "]d", vim.diagnostic.goto_next,
+            vim.tbl_extend("force", opts, { desc = "Next Diagnostic" }))
+          map("n", "<leader>dq", vim.diagnostic.setloclist,
+            vim.tbl_extend("force", opts, { desc = "Diagnostics Quickfix List" }))
         end,
       })
 
