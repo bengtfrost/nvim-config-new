@@ -117,24 +117,27 @@ return {
         table.insert(configured_servers, "lua_ls")
       end
 
-      -- Python
+      -- Python - FIXED: Ensure --stdio is passed correctly
       if server_available("basedpyright-langserver") then
-        vim.lsp.config("basedpyright", {
-          cmd = get_cmd("basedpyright-langserver"),
-          filetypes = { "python" },
-          root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
-          settings = {
-            basedpyright = {
-              analysis = {
-                typeCheckingMode = "basic",
-                autoSearchPaths = true,
-                useLibraryCodeForTypes = true,
-                pythonPath = "/usr/bin/python3",
+        local basedpyright_path = get_cmd("basedpyright-langserver")
+        if basedpyright_path then
+          vim.lsp.config("basedpyright", {
+            cmd = { basedpyright_path[1], "--stdio" },
+            filetypes = { "python" },
+            root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
+            settings = {
+              basedpyright = {
+                analysis = {
+                  typeCheckingMode = "basic",
+                  autoSearchPaths = true,
+                  useLibraryCodeForTypes = true,
+                  pythonPath = "/usr/bin/python3",
+                },
               },
             },
-          },
-        })
-        table.insert(configured_servers, "basedpyright")
+          })
+          table.insert(configured_servers, "basedpyright")
+        end
       end
 
       -- Rust
