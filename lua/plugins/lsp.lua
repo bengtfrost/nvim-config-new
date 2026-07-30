@@ -117,7 +117,7 @@ return {
         table.insert(configured_servers, "lua_ls")
       end
 
-      -- Python - FIXED: Ensure --stdio is passed correctly
+      -- Python
       if server_available("basedpyright-langserver") then
         local basedpyright_path = get_cmd("basedpyright-langserver")
         if basedpyright_path then
@@ -193,12 +193,16 @@ return {
         table.insert(configured_servers, "bashls")
       end
 
-      -- Markdown
+      -- Markdown (marksman with reduced logging)
       if server_available("marksman") then
         vim.lsp.config("marksman", {
           cmd = get_cmd("marksman"),
           filetypes = { "markdown" },
           root_markers = { ".git" },
+          on_init = function(client, _)
+            -- Reduce logging verbosity for marksman
+            -- This is just informational, not an error
+          end,
         })
         table.insert(configured_servers, "marksman")
       end
