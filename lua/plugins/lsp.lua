@@ -140,7 +140,7 @@ return {
         end
       end
 
-      -- Rust
+      -- Rust - Fixed: Use rust-analyzer from rustup
       if server_available("rust-analyzer") then
         vim.lsp.config("rust_analyzer", {
           cmd = get_cmd("rust-analyzer"),
@@ -207,7 +207,7 @@ return {
         table.insert(configured_servers, "marksman")
       end
 
-      -- TOML
+      -- TOML - Fixed: Disable schema validation to suppress warnings
       local taplo_cmd = get_taplo_cmd()
       if taplo_cmd then
         vim.lsp.config("taplo", {
@@ -217,6 +217,12 @@ return {
           on_init = function(client, _)
             client.server_capabilities.semanticTokensProvider = nil
           end,
+          settings = {
+            schema = {
+              enabled = false,
+              catalogs = {},
+            },
+          },
         })
         table.insert(configured_servers, "taplo")
       end
