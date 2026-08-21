@@ -189,12 +189,12 @@ return {
 				table.insert(configured_servers, "bashls")
 			end
 
-			-- Markdown
+			-- Markdown (Marksman)
 			if server_available("marksman") then
 				vim.lsp.config("marksman", {
 					cmd = get_cmd("marksman"),
-					filetypes = { "markdown" },
-					root_markers = { ".git" },
+					filetypes = { "markdown", "markdown.mdx" },
+					root_markers = { ".marksman.toml", ".git" },
 				})
 				table.insert(configured_servers, "marksman")
 			end
