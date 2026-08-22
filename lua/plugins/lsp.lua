@@ -42,84 +42,51 @@ return {
 				return { path }
 			end
 
-			-- Helper function to check if a server is available
-			local function server_available(executable)
-				return get_cmd(executable, nil, true) ~= nil
-			end
-
-			-- Helper function for taplo
-			local function get_taplo_cmd()
-				local taplo_path = vim.fn.exepath("taplo")
-				if taplo_path == "" then
-					local cargo_paths = {
-						vim.fn.expand("~/.cargo/bin/taplo"),
-						vim.fn.expand("~/.local/bin/taplo"),
-						"/usr/local/bin/taplo",
-						"/usr/bin/taplo",
-					}
-					for _, p in ipairs(cargo_paths) do
-						if vim.fn.executable(p) == 1 then
-							taplo_path = p
-							break
-						end
-					end
-					if taplo_path == "" then
-						vim.notify("Warning: taplo not found in PATH or common cargo locations", vim.log.levels.WARN)
-						return nil
-					end
-				end
-				return { taplo_path, "lsp", "stdio" }
-			end
-
 			-- 1. Global capabilities for all LSP servers
 			vim.lsp.config("*", {
 				capabilities = capabilities,
 			})
 
-			-- 2. Track which servers we successfully configure
-			local configured_servers = {}
-
-			-- Lua
-			if server_available("lua-language-server") then
-				vim.lsp.config("lua_ls", {
-					cmd = get_cmd("lua-language-server"),
-					filetypes = { "lua" },
-					root_markers = {
-						".luarc.json",
-						".luarc.jsonc",
-						".luacheckrc",
-						".stylua.toml",
-						"stylua.toml",
-						"selene.toml",
-						".git",
-					},
-					settings = {
-						Lua = {
-							runtime = { version = "LuaJIT" },
-							workspace = {
-								library = {
-									vim.fn.expand("$VIMRUNTIME/lua"),
-									vim.fn.stdpath("config") .. "/lua",
+			-- 2. Server definitions: executable to check + lspconfig name + config
+			local servers = {
+				{
+					name = "lua_ls",
+					executable = "lua-language-server",
+					opts = {
+						filetypes = { "lua" },
+						root_markers = {
+							".luarc.json",
+							".luarc.jsonc",
+							".luacheckrc",
+							".stylua.toml",
+							"stylua.toml",
+							"selene.toml",
+							".git",
+						},
+						settings = {
+							Lua = {
+								runtime = { version = "LuaJIT" },
+								workspace = {
+									library = {
+										vim.fn.expand("$VIMRUNTIME/lua"),
+										vim.fn.stdpath("config") .. "/lua",
+									},
+									checkThirdParty = false,
 								},
-								checkThirdParty = false,
+								diagnostics = {
+									globals = { "vim", "require" },
+								},
+								telemetry = { enable = false },
+								hint = { enable = true },
 							},
-							diagnostics = {
-								globals = { "vim", "require" },
-							},
-							telemetry = { enable = false },
-							hint = { enable = true },
 						},
 					},
-				})
-				table.insert(configured_servers, "lua_ls")
-			end
-
-			-- Python (Basedpyright)
-			if server_available("basedpyright-langserver") then
-				local basedpyright_path = get_cmd("basedpyright-langserver")
-				if basedpyright_path then
-					vim.lsp.config("basedpyright", {
-						cmd = { basedpyright_path[1], "--stdio" },
+				},
+				{
+					name = "basedpyright",
+					executable = "basedpyright-langserver",
+					args = { "--stdio" },
+					opts = {
 						filetypes = { "python" },
 						root_markers = { "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" },
 						settings = {
@@ -131,110 +98,108 @@ return {
 								},
 							},
 						},
-					})
-					table.insert(configured_servers, "basedpyright")
-				end
-			end
-
-			-- Rust
-			if server_available("rust-analyzer") then
-				vim.lsp.config("rust_analyzer", {
-					cmd = get_cmd("rust-analyzer"),
-					filetypes = { "rust" },
-					root_markers = { "Cargo.toml", "Cargo.lock" },
-					settings = {
-						["rust-analyzer"] = {
-							check = {
-								command = "clippy",
+					},
+				},
+				{
+					name = "rust_analyzer",
+					executable = "rust-analyzer",
+					opts = {
+						filetypes = { "rust" },
+						root_markers = { "Cargo.toml", "Cargo.lock" },
+						settings = {
+							["rust-analyzer"] = {
+								check = {
+									command = "clippy",
+								},
 							},
 						},
 					},
-				})
-				table.insert(configured_servers, "rust_analyzer")
-			end
-
-			-- TypeScript/JavaScript
-			if server_available("typescript-language-server") then
-				vim.lsp.config("ts_ls", {
-					cmd = get_cmd("typescript-language-server", { "--stdio" }),
-					filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-					root_markers = { "package.json", "tsconfig.json", ".git" },
-					init_options = {
-						hostInfo = "neovim",
-					},
-				})
-				table.insert(configured_servers, "ts_ls")
-			end
-
-			-- C/C++
-			if server_available("clangd") then
-				vim.lsp.config("clangd", {
-					cmd = get_cmd("clangd"),
-					filetypes = { "c", "cpp", "objc", "objcpp" },
-					root_markers = { ".clangd", "compile_commands.json", "compile_flags.txt", ".git" },
-					on_init = function(client, _)
-						client.server_capabilities.offsetEncoding = { "utf-8" }
-					end,
-				})
-				table.insert(configured_servers, "clangd")
-			end
-
-			-- Bash
-			if server_available("bash-language-server") then
-				vim.lsp.config("bashls", {
-					cmd = get_cmd("bash-language-server", { "start" }),
-					filetypes = { "sh", "bash" },
-					root_markers = { ".git" },
-				})
-				table.insert(configured_servers, "bashls")
-			end
-
-			-- Markdown (Marksman)
-			if server_available("marksman") then
-				vim.lsp.config("marksman", {
-					cmd = get_cmd("marksman"),
-					filetypes = { "markdown", "markdown.mdx" },
-					root_markers = { ".marksman.toml", ".git" },
-				})
-				table.insert(configured_servers, "marksman")
-			end
-
-			-- TOML
-			local taplo_cmd = get_taplo_cmd()
-			if taplo_cmd then
-				vim.lsp.config("taplo", {
-					cmd = taplo_cmd,
-					filetypes = { "toml" },
-					root_markers = { ".git" },
-					on_init = function(client, _)
-						client.server_capabilities.semanticTokensProvider = nil
-					end,
-					settings = {
-						schema = {
-							enabled = false,
-							catalogs = {},
+				},
+				{
+					name = "ts_ls",
+					executable = "typescript-language-server",
+					args = { "--stdio" },
+					opts = {
+						filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+						root_markers = { "package.json", "tsconfig.json", ".git" },
+						init_options = {
+							hostInfo = "neovim",
 						},
 					},
-				})
-				table.insert(configured_servers, "taplo")
-			end
-
-			-- YAML
-			if server_available("yaml-language-server") then
-				vim.lsp.config("yamlls", {
-					cmd = get_cmd("yaml-language-server", { "--stdio" }),
-					filetypes = { "yaml", "yml" },
-					root_markers = { ".git" },
-					settings = {
-						yaml = {
-							schemas = require("schemastore").yaml.schemas(),
+				},
+				{
+					name = "clangd",
+					executable = "clangd",
+					opts = {
+						filetypes = { "c", "cpp", "objc", "objcpp" },
+						root_markers = { ".clangd", "compile_commands.json", "compile_flags.txt", ".git" },
+						on_init = function(client, _)
+							client.server_capabilities.offsetEncoding = { "utf-8" }
+						end,
+					},
+				},
+				{
+					name = "bashls",
+					executable = "bash-language-server",
+					args = { "start" },
+					opts = {
+						filetypes = { "sh", "bash" },
+						root_markers = { ".git" },
+					},
+				},
+				{
+					name = "marksman",
+					executable = "marksman",
+					opts = {
+						filetypes = { "markdown", "markdown.mdx" },
+						root_markers = { ".marksman.toml", ".git" },
+					},
+				},
+				{
+					name = "taplo",
+					executable = "taplo",
+					args = { "lsp", "stdio" },
+					opts = {
+						filetypes = { "toml" },
+						root_markers = { ".git" },
+						on_init = function(client, _)
+							client.server_capabilities.semanticTokensProvider = nil
+						end,
+						settings = {
+							schema = {
+								enabled = false,
+								catalogs = {},
+							},
 						},
 					},
-				})
-				table.insert(configured_servers, "yamlls")
+				},
+				{
+					name = "yamlls",
+					executable = "yaml-language-server",
+					args = { "--stdio" },
+					opts = {
+						filetypes = { "yaml", "yml" },
+						root_markers = { ".git" },
+						settings = {
+							yaml = {
+								schemas = require("schemastore").yaml.schemas(),
+							},
+						},
+					},
+				},
+			}
+
+			-- 3. Configure and enable each server whose executable is found
+			local configured_servers = {}
+			for _, server in ipairs(servers) do
+				local cmd = get_cmd(server.executable, server.args)
+				if cmd then
+					server.opts.cmd = cmd
+					vim.lsp.config(server.name, server.opts)
+					table.insert(configured_servers, server.name)
+				end
 			end
 
-			-- 3. Enable all configured LSP servers
 			for _, server in ipairs(configured_servers) do
 				vim.lsp.enable(server)
 			end
