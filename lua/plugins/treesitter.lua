@@ -24,13 +24,22 @@ return {
         "markdown",
         "markdown_inline",
       },
-      -- Enable these features
       highlight = {
         enable = true,
       },
       indent = {
         enable = true,
       },
+      -- Optional: Enable incremental selection
+      -- incremental_selection = {
+      --   enable = true,
+      --   keymaps = {
+      --     init_selection = "<C-space>",
+      --     node_incremental = "<C-space>",
+      --     scope_incremental = false,
+      --     node_decremental = "<S-C-space>",
+      --   },
+      -- },
     })
   end,
 }

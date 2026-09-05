@@ -1,4 +1,4 @@
--- lua/plugins/formatter.lua (with markdown disabled)
+-- lua/plugins/formatter.lua
 return {
   {
     'stevearc/conform.nvim',
@@ -21,8 +21,9 @@ return {
         json = { "dprint" },
         yaml = { "dprint" },
         toml = { "taplo" },
-        -- markdown = { "dprint" },  -- Comment out or remove
+        -- markdown = { "dprint" }, -- Disabled to avoid markdown formatting issues
         bash = { "shfmt" },
+        sh = { "shfmt" },
         c = { "clang-format" },
         cpp = { "clang-format" },
       },

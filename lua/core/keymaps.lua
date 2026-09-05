@@ -36,13 +36,8 @@ map('n', '<leader>q', '<cmd>q<cr>', vim.tbl_extend('force', opts, { desc = 'Quit
 map('n', '<leader>Q', '<cmd>qa!<cr>', vim.tbl_extend('force', opts, { desc = 'Quit All (Force)' }))
 map('n', '<leader>bn', '<cmd>bnext<cr>', vim.tbl_extend('force', opts, { desc = 'Next buffer' }))
 map('n', '<leader>bp', '<cmd>bprevious<cr>', vim.tbl_extend('force', opts, { desc = 'Previous buffer' }))
--- Note: :Bdelete usually requires a plugin like bufferline or fzf integrations
--- Use <cmd>bdelete<cr> for standard Neovim buffer delete
 map('n', '<leader>bd', '<cmd>bdelete<cr>', vim.tbl_extend('force', opts, { desc = 'Delete buffer' }))
 
 -- [[ Other ]]
 -- Clear search highlights
 map('n', '<leader><leader>h', '<cmd>nohlsearch<CR>', vim.tbl_extend('force', opts, { desc = 'Clear highlights' }))
-
--- REMOVED redundant mapping: <leader>fw was same as <leader>s
--- map('n', '<leader>fw', '<cmd>w<cr>', { desc = 'Save File (WhichKey)' })

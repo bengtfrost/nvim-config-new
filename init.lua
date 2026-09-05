@@ -27,7 +27,10 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 -- [[ Configure and load plugins via lazy.nvim ]]
-require("lazy").setup("plugins", {
+require("lazy").setup({
+  -- Import all plugins from lua/plugins/*.lua
+  { import = "plugins" },
+}, {
   checker = { enabled = true, notify = false },
   change_detection = { enabled = true, notify = false },
   rocks = {
@@ -47,7 +50,7 @@ vim.diagnostic.config({
   update_in_insert = false,
   severity_sort = true,
   float = {
-    source = true, -- was "always" in <0.10, now boolean
+    source = true,
     border = "rounded",
   },
 })
@@ -56,7 +59,6 @@ vim.diagnostic.config({
 vim.opt.signcolumn = "yes:1"
 
 -- [[ Reduce LSP logging verbosity (show only warnings and errors) ]]
--- New API for Neovim 0.12+
 vim.lsp.log.set_level("warn")
 
 -- [[ Auto Commands ]]
@@ -83,7 +85,6 @@ vim.api.nvim_create_autocmd("BufEnter", {
       if vim.api.nvim_win_is_valid(win) then
         local buf = vim.api.nvim_win_get_buf(win)
         if vim.bo[buf].filetype == "NvimTree" then
-          -- Defer slightly to let UI states stabilize safely
           vim.defer_fn(function()
             local current_wins = vim.api.nvim_list_wins()
             if #current_wins == 1 and vim.api.nvim_win_is_valid(current_wins[1]) then

@@ -60,4 +60,4 @@ elseif vim.fn.executable("xclip") == 1 then
 end
 
 -- [[ Mouse Support ]]
-opt.mouse = "a" -- Enable mouse support
+opt.mouse = "a"
