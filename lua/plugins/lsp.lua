@@ -176,11 +176,30 @@ return {
           executable = "yaml-language-server",
           args = { "--stdio" },
           opts = {
-            filetypes = { "yaml", "yml" },
-            root_markers = { ".git" },
+            filetypes = { "yaml" }, -- Only yaml, yml is handled by filetype detection
+            root_markers = { ".git", ".yamllint", "yamlfmt.yaml" },
+            single_file_support = true,
             settings = {
               yaml = {
                 schemas = require("schemastore").yaml.schemas(),
+                format = {
+                  enable = true,
+                  singleQuote = false,
+                  bracketSpacing = true,
+                },
+                validate = true,
+                hover = true,
+                completion = true,
+                customTags = {
+                  "!reference sequence",
+                  "!include sequence",
+                  "!tag scalar",
+                },
+              },
+              redhat = {
+                telemetry = {
+                  enabled = false,
+                },
               },
             },
           },

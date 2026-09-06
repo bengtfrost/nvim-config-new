@@ -61,3 +61,16 @@ end
 
 -- [[ Mouse Support ]]
 opt.mouse = "a"
+
+-- [[ Filetype Detection ]]
+-- Fix yml filetype detection for LSP and other plugins
+vim.filetype.add({
+  extension = {
+    yml = "yaml",
+    yaml = "yaml",
+  },
+  filename = {
+    [".yamllint"] = "yaml",
+    ["yamlfmt.yaml"] = "yaml",
+  },
+})
