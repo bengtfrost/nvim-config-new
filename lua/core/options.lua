@@ -63,14 +63,19 @@ end
 opt.mouse = "a"
 
 -- [[ Filetype Detection ]]
--- Fix yml filetype detection for LSP and other plugins
+-- Fix yml and mdx filetype detection for LSP and other plugins
 vim.filetype.add({
   extension = {
     yml = "yaml",
     yaml = "yaml",
+    mdx = "markdown",
   },
   filename = {
     [".yamllint"] = "yaml",
     ["yamlfmt.yaml"] = "yaml",
+    [".mdx"] = "markdown",
+  },
+  pattern = {
+    [".*%.mdx"] = "markdown",
   },
 })

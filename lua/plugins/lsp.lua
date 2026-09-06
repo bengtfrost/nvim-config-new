@@ -151,8 +151,15 @@ return {
         marksman = {
           executable = "marksman",
           opts = {
-            filetypes = { "markdown", "markdown.mdx" },
+            filetypes = { "markdown" }, -- Removed markdown.mdx, handled by filetype detection
             root_markers = { ".marksman.toml", ".git" },
+            single_file_support = true,
+            -- Optional: marksman settings (if supported)
+            -- settings = {
+            --   marksman = {
+            --     enable = true,
+            --   },
+            -- },
           },
         },
         taplo = {
@@ -204,6 +211,21 @@ return {
             },
           },
         },
+        -- Optional: JSON language server for better JSON support
+        -- jsonls = {
+        --   executable = "json-language-server",
+        --   args = { "--stdio" },
+        --   opts = {
+        --     filetypes = { "json", "jsonc" },
+        --     root_markers = { ".git" },
+        --     settings = {
+        --       json = {
+        --         schemas = require("schemastore").json.schemas(),
+        --         validate = { enable = true },
+        --       },
+        --     },
+        --   },
+        -- },
       }
 
       -- Configure and enable each server
