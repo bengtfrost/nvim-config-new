@@ -2,7 +2,7 @@
 return {
   {
     "nvim-telescope/telescope.nvim",
-    branch = "master",  -- Use master for latest stable features
+    branch = "master", -- Use master for latest stable features
     lazy = true,
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -25,7 +25,7 @@ return {
     },
     config = function()
       local telescope = require("telescope")
-      
+
       telescope.setup({
         defaults = {
           prompt_prefix = " ",

@@ -1,7 +1,7 @@
 -- lua/plugins/formatter.lua
 return {
   {
-    'stevearc/conform.nvim',
+    "stevearc/conform.nvim",
     event = { "BufWritePre" },
     cmd = { "ConformInfo", "Format" },
     keys = {

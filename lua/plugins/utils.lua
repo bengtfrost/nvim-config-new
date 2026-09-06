@@ -2,12 +2,12 @@
 return {
   -- WhichKey
   {
-    'folke/which-key.nvim',
+    "folke/which-key.nvim",
     event = "VeryLazy",
-    dependencies = { 'echasnovski/mini.icons' },
+    dependencies = { "echasnovski/mini.icons" },
     config = function()
-      local wk = require('which-key')
-      
+      local wk = require("which-key")
+
       wk.setup({
         plugins = {
           marks = true,
@@ -39,27 +39,27 @@ return {
 
   -- Mini Icons
   {
-    'echasnovski/mini.icons',
+    "echasnovski/mini.icons",
     lazy = true,
   },
 
   -- Auto-pairs
   {
-    'windwp/nvim-autopairs',
+    "windwp/nvim-autopairs",
     event = "InsertEnter",
     config = function()
-      require('nvim-autopairs').setup()
+      require("nvim-autopairs").setup()
     end,
   },
 
   -- Trouble (better diagnostics)
   {
-    'folke/trouble.nvim',
-    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    "folke/trouble.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     keys = {
       { "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics (Trouble)" },
-      { "<leader>xq", "<cmd>Trouble quickfix toggle<cr>", desc = "Quickfix (Trouble)" },
-      { "<leader>xl", "<cmd>Trouble loclist toggle<cr>", desc = "Location List (Trouble)" },
+      { "<leader>xq", "<cmd>Trouble quickfix toggle<cr>",    desc = "Quickfix (Trouble)" },
+      { "<leader>xl", "<cmd>Trouble loclist toggle<cr>",     desc = "Location List (Trouble)" },
     },
     opts = {
       -- Your Trouble config here
@@ -69,10 +69,10 @@ return {
 
   -- Mini Surround
   {
-    'echasnovski/mini.surround',
-    version = '*',
+    "echasnovski/mini.surround",
+    version = "*",
     config = function()
-      require('mini.surround').setup()
+      require("mini.surround").setup()
     end,
   },
 
