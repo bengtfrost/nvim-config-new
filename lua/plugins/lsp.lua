@@ -225,32 +225,92 @@ return {
           end
 
           -- Navigation
-          map("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "Go to Declaration" }))
+          map(
+            "n",
+            "gD",
+            vim.lsp.buf.declaration,
+            vim.tbl_extend("force", opts, { desc = "Go to Declaration" })
+          )
           map("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to Definition" }))
-          map("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Go to Implementation" }))
-          map("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Go to References" }))
-          map("n", "<leader>D", vim.lsp.buf.type_definition, vim.tbl_extend("force", opts, { desc = "Go to Type Definition" }))
+          map(
+            "n",
+            "gi",
+            vim.lsp.buf.implementation,
+            vim.tbl_extend("force", opts, { desc = "Go to Implementation" })
+          )
+          map("n", "gR", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Go to References" }))
+          map(
+            "n",
+            "<leader>D",
+            vim.lsp.buf.type_definition,
+            vim.tbl_extend("force", opts, { desc = "Go to Type Definition" })
+          )
 
           -- Hover & Signature
           map("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover Documentation" }))
-          map("n", "<leader>k", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "Signature Help" }))
+          map(
+            "n",
+            "<leader>k",
+            vim.lsp.buf.signature_help,
+            vim.tbl_extend("force", opts, { desc = "Signature Help" })
+          )
 
           -- Refactoring
-          map("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename Symbol" }))
-          map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "Code Action" }))
+          map(
+            "n",
+            "<leader>rn",
+            vim.lsp.buf.rename,
+            vim.tbl_extend("force", opts, { desc = "Rename Symbol" })
+          )
+          map(
+            { "n", "v" },
+            "<leader>ca",
+            vim.lsp.buf.code_action,
+            vim.tbl_extend("force", opts, { desc = "Code Action" })
+          )
 
           -- Workspace
-          map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, vim.tbl_extend("force", opts, { desc = "Workspace: Add Folder" }))
-          map("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, vim.tbl_extend("force", opts, { desc = "Workspace: Remove Folder" }))
+          map(
+            "n",
+            "<leader>wa",
+            vim.lsp.buf.add_workspace_folder,
+            vim.tbl_extend("force", opts, { desc = "Workspace: Add Folder" })
+          )
+          map(
+            "n",
+            "<leader>wr",
+            vim.lsp.buf.remove_workspace_folder,
+            vim.tbl_extend("force", opts, { desc = "Workspace: Remove Folder" })
+          )
           map("n", "<leader>wl", function()
             print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
           end, vim.tbl_extend("force", opts, { desc = "Workspace: List Folders" }))
 
           -- Diagnostics
-          map("n", "<leader>e", vim.diagnostic.open_float, vim.tbl_extend("force", opts, { desc = "Show Line Diagnostics" }))
-          map("n", "[d", vim.diagnostic.goto_prev, vim.tbl_extend("force", opts, { desc = "Previous Diagnostic" }))
-          map("n", "]d", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "Next Diagnostic" }))
-          map("n", "<leader>dq", vim.diagnostic.setloclist, vim.tbl_extend("force", opts, { desc = "Diagnostics Quickfix List" }))
+          map(
+            "n",
+            "<leader>e",
+            vim.diagnostic.open_float,
+            vim.tbl_extend("force", opts, { desc = "Show Line Diagnostics" })
+          )
+          map(
+            "n",
+            "[d",
+            vim.diagnostic.goto_prev,
+            vim.tbl_extend("force", opts, { desc = "Previous Diagnostic" })
+          )
+          map(
+            "n",
+            "]d",
+            vim.diagnostic.goto_next,
+            vim.tbl_extend("force", opts, { desc = "Next Diagnostic" })
+          )
+          map(
+            "n",
+            "<leader>dq",
+            vim.diagnostic.setloclist,
+            vim.tbl_extend("force", opts, { desc = "Diagnostics Quickfix List" })
+          )
         end,
       })
     end,
