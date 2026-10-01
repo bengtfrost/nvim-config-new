@@ -101,13 +101,38 @@ return {
           executable = "rust-analyzer",
           opts = {
             filetypes = { "rust" },
-            root_markers = { "Cargo.toml", "Cargo.lock" },
+            root_markers = { "Cargo.toml", "Cargo.lock", "rust-project.json", ".git" },
+            single_file_support = false, -- Don't start without a Cargo project
             settings = {
               ["rust-analyzer"] = {
                 check = {
                   command = "clippy",
                 },
+                cargo = {
+                  allFeatures = true,
+                  loadOutDirsFromCheck = true,
+                },
+                procMacro = {
+                  enable = true,
+                },
+                diagnostics = {
+                  enable = true,
+                  experimental = { enable = false },
+                },
+                -- Speed up indexing and reduce log noise
+                files = {
+                  excludeDirs = { "target", ".git", "node_modules" },
+                },
               },
+            },
+            -- Suppress noisy "No path was found" stderr warnings
+            handlers = {
+              ["window/logMessage"] = function(_, result, ctx)
+                if result.message and result.message:match("No path was found") then
+                  return
+                end
+                vim.lsp.handlers["window/logMessage"](nil, result, ctx)
+              end,
             },
           },
         },
@@ -151,15 +176,9 @@ return {
         marksman = {
           executable = "marksman",
           opts = {
-            filetypes = { "markdown" }, -- Removed markdown.mdx, handled by filetype detection
+            filetypes = { "markdown" }, -- markdown.mdx handled by filetype detection
             root_markers = { ".marksman.toml", ".git" },
             single_file_support = true,
-            -- Optional: marksman settings (if supported)
-            -- settings = {
-            --   marksman = {
-            --     enable = true,
-            --   },
-            -- },
           },
         },
         taplo = {
@@ -183,7 +202,7 @@ return {
           executable = "yaml-language-server",
           args = { "--stdio" },
           opts = {
-            filetypes = { "yaml" }, -- Only yaml, yml is handled by filetype detection
+            filetypes = { "yaml" }, -- yml handled by filetype detection
             root_markers = { ".git", ".yamllint", "yamlfmt.yaml" },
             single_file_support = true,
             settings = {
@@ -211,21 +230,6 @@ return {
             },
           },
         },
-        -- Optional: JSON language server for better JSON support
-        -- jsonls = {
-        --   executable = "json-language-server",
-        --   args = { "--stdio" },
-        --   opts = {
-        --     filetypes = { "json", "jsonc" },
-        --     root_markers = { ".git" },
-        --     settings = {
-        --       json = {
-        --         schemas = require("schemastore").json.schemas(),
-        --         validate = { enable = true },
-        --       },
-        --     },
-        --   },
-        -- },
       }
 
       -- Configure and enable each server
