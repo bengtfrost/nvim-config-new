@@ -4,8 +4,25 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Load core configuration
+-- Load core options FIRST
 require("core.options")
+
+-- Configure diagnostics BEFORE keymaps
+-- (Neovim 0.11+ installs default diagnostic keymaps like <leader>e when this runs;
+--  we must set our own keymaps AFTER this so they override the defaults)
+vim.diagnostic.config({
+  virtual_text = true,
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+  severity_sort = true,
+  float = {
+    source = true,
+    border = "rounded",
+  },
+})
+
+-- Load core keymaps AFTER diagnostic config so our maps take precedence
 require("core.keymaps")
 
 -- [[ Install lazy.nvim package manager ]]
@@ -28,32 +45,18 @@ vim.opt.rtp:prepend(lazypath)
 
 -- [[ Configure and load plugins via lazy.nvim ]]
 require("lazy").setup({
-  -- Import all plugins from lua/plugins/*.lua
   { import = "plugins" },
 }, {
   checker = { enabled = true, notify = false },
   change_detection = { enabled = true, notify = false },
   rocks = {
-    hererocks = false, -- Disables hererocks execution and suppresses luarocks errors/warnings
+    hererocks = false,
   },
 })
 
 -- [[ Disable Unused Default Providers ]]
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
-
--- [[ Diagnostics Configuration ]]
-vim.diagnostic.config({
-  virtual_text = true,
-  signs = true,
-  underline = true,
-  update_in_insert = false,
-  severity_sort = true,
-  float = {
-    source = true,
-    border = "rounded",
-  },
-})
 
 -- Ensure sign column is always present to prevent text jitter
 vim.opt.signcolumn = "yes:1"

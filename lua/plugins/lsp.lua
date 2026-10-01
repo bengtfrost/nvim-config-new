@@ -11,7 +11,71 @@ return {
       local cmp_nvim_lsp = require("cmp_nvim_lsp")
       local capabilities = cmp_nvim_lsp.default_capabilities()
 
-      -- Helper function to get system executable path
+      -- ============================================================
+      -- 1. Register LspAttach FIRST — before anything that could fail
+      -- ============================================================
+      vim.api.nvim_create_autocmd("LspAttach", {
+        desc = "LSP actions and keymaps",
+        callback = function(args)
+          local bufnr = args.buf
+          local map = vim.keymap.set
+          local opts = { buffer = bufnr, noremap = true, silent = true }
+
+          -- Get client defensively — used only for capability check
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if not client then
+            local clients = vim.lsp.get_clients({ bufnr = bufnr })
+            client = clients[1]
+          end
+
+          -- Formatting notice (only if client is known and supports formatting)
+          if client and client:supports_method("textDocument/formatting") then
+            map(
+              { "n", "v" },
+              "<leader>lf",
+              "<cmd>echo 'Use Conform for formatting (<leader>fd)'<CR>",
+              vim.tbl_extend("force", opts, { desc = "LSP Formatting (Disabled)" })
+            )
+          end
+
+          -- Navigation (always register regardless of client state)
+          map("n", "gD", vim.lsp.buf.declaration,
+            vim.tbl_extend("force", opts, { desc = "Go to Declaration" }))
+          map("n", "gd", vim.lsp.buf.definition,
+            vim.tbl_extend("force", opts, { desc = "Go to Definition" }))
+          map("n", "gi", vim.lsp.buf.implementation,
+            vim.tbl_extend("force", opts, { desc = "Go to Implementation" }))
+          map("n", "gR", vim.lsp.buf.references,
+            vim.tbl_extend("force", opts, { desc = "Go to References" }))
+          map("n", "<leader>D", vim.lsp.buf.type_definition,
+            vim.tbl_extend("force", opts, { desc = "Go to Type Definition" }))
+
+          -- Hover & Signature
+          map("n", "K", vim.lsp.buf.hover,
+            vim.tbl_extend("force", opts, { desc = "Hover Documentation" }))
+          map("n", "<leader>k", vim.lsp.buf.signature_help,
+            vim.tbl_extend("force", opts, { desc = "Signature Help" }))
+
+          -- Refactoring
+          map("n", "<leader>rn", vim.lsp.buf.rename,
+            vim.tbl_extend("force", opts, { desc = "Rename Symbol" }))
+          map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action,
+            vim.tbl_extend("force", opts, { desc = "Code Action" }))
+
+          -- Workspace
+          map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder,
+            vim.tbl_extend("force", opts, { desc = "Workspace: Add Folder" }))
+          map("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder,
+            vim.tbl_extend("force", opts, { desc = "Workspace: Remove Folder" }))
+          map("n", "<leader>wl", function()
+            print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+          end, vim.tbl_extend("force", opts, { desc = "Workspace: List Folders" }))
+        end,
+      })
+
+      -- ============================================================
+      -- 2. Helper function — find executables across common paths
+      -- ============================================================
       local function get_cmd(executable, args, silent)
         local path = vim.fn.exepath(executable)
         if path == "" then
@@ -41,25 +105,36 @@ return {
         return { path }
       end
 
-      -- Global capabilities for all LSP servers
-      vim.lsp.config("*", {
-        capabilities = capabilities,
-      })
+      -- ============================================================
+      -- 3. Global capabilities
+      -- ============================================================
+      vim.lsp.config("*", { capabilities = capabilities })
 
-      -- Server configurations
+      -- ============================================================
+      -- 4. Load schemastore defensively
+      -- ============================================================
+      local yaml_schemas = {}
+      local ok_schema, schema_mod = pcall(require, "schemastore")
+      if ok_schema and schema_mod and schema_mod.yaml then
+        local ok_schemas, schemas = pcall(function()
+          return schema_mod.yaml.schemas()
+        end)
+        if ok_schemas then
+          yaml_schemas = schemas
+        end
+      end
+
+      -- ============================================================
+      -- 5. Server configurations
+      -- ============================================================
       local servers = {
         lua_ls = {
           executable = "lua-language-server",
           opts = {
             filetypes = { "lua" },
             root_markers = {
-              ".luarc.json",
-              ".luarc.jsonc",
-              ".luacheckrc",
-              ".stylua.toml",
-              "stylua.toml",
-              "selene.toml",
-              ".git",
+              ".luarc.json", ".luarc.jsonc", ".luacheckrc",
+              ".stylua.toml", "stylua.toml", "selene.toml", ".git",
             },
             settings = {
               Lua = {
@@ -71,9 +146,7 @@ return {
                   },
                   checkThirdParty = false,
                 },
-                diagnostics = {
-                  globals = { "vim", "require" },
-                },
+                diagnostics = { globals = { "vim", "require" } },
                 telemetry = { enable = false },
                 hint = { enable = true },
               },
@@ -102,37 +175,15 @@ return {
           opts = {
             filetypes = { "rust" },
             root_markers = { "Cargo.toml", "Cargo.lock", "rust-project.json", ".git" },
-            single_file_support = false, -- Don't start without a Cargo project
+            single_file_support = false,
             settings = {
               ["rust-analyzer"] = {
-                check = {
-                  command = "clippy",
-                },
-                cargo = {
-                  allFeatures = true,
-                  loadOutDirsFromCheck = true,
-                },
-                procMacro = {
-                  enable = true,
-                },
-                diagnostics = {
-                  enable = true,
-                  experimental = { enable = false },
-                },
-                -- Speed up indexing and reduce log noise
-                files = {
-                  excludeDirs = { "target", ".git", "node_modules" },
-                },
+                check = { command = "clippy" },
+                cargo = { allFeatures = true, loadOutDirsFromCheck = true },
+                procMacro = { enable = true },
+                diagnostics = { enable = true, experimental = { enable = false } },
+                files = { excludeDirs = { "target", ".git", "node_modules" } },
               },
-            },
-            -- Suppress noisy "No path was found" stderr warnings
-            handlers = {
-              ["window/logMessage"] = function(_, result, ctx)
-                if result.message and result.message:match("No path was found") then
-                  return
-                end
-                vim.lsp.handlers["window/logMessage"](nil, result, ctx)
-              end,
             },
           },
         },
@@ -150,9 +201,7 @@ return {
             filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
             root_markers = { "package.json", "tsconfig.json" },
             single_file_support = false,
-            init_options = {
-              hostInfo = "neovim",
-            },
+            init_options = { hostInfo = "neovim" },
           },
         },
         clangd = {
@@ -168,15 +217,12 @@ return {
         bashls = {
           executable = "bash-language-server",
           args = { "start" },
-          opts = {
-            filetypes = { "sh", "bash" },
-            root_markers = { ".git" },
-          },
+          opts = { filetypes = { "sh", "bash" }, root_markers = { ".git" } },
         },
         marksman = {
           executable = "marksman",
           opts = {
-            filetypes = { "markdown" }, -- markdown.mdx handled by filetype detection
+            filetypes = { "markdown" },
             root_markers = { ".marksman.toml", ".git" },
             single_file_support = true,
           },
@@ -190,49 +236,36 @@ return {
             on_init = function(client, _)
               client.server_capabilities.semanticTokensProvider = nil
             end,
-            settings = {
-              schema = {
-                enabled = false,
-                catalogs = {},
-              },
-            },
+            settings = { schema = { enabled = false, catalogs = {} } },
           },
         },
         yamlls = {
           executable = "yaml-language-server",
           args = { "--stdio" },
           opts = {
-            filetypes = { "yaml" }, -- yml handled by filetype detection
+            filetypes = { "yaml" },
             root_markers = { ".git", ".yamllint", "yamlfmt.yaml" },
             single_file_support = true,
             settings = {
               yaml = {
-                schemas = require("schemastore").yaml.schemas(),
-                format = {
-                  enable = true,
-                  singleQuote = false,
-                  bracketSpacing = true,
-                },
+                schemas = yaml_schemas,
+                format = { enable = true, singleQuote = false, bracketSpacing = true },
                 validate = true,
                 hover = true,
                 completion = true,
                 customTags = {
-                  "!reference sequence",
-                  "!include sequence",
-                  "!tag scalar",
+                  "!reference sequence", "!include sequence", "!tag scalar",
                 },
               },
-              redhat = {
-                telemetry = {
-                  enabled = false,
-                },
-              },
+              redhat = { telemetry = { enabled = false } },
             },
           },
         },
       }
 
-      -- Configure and enable each server
+      -- ============================================================
+      -- 6. Configure + enable servers
+      -- ============================================================
       local configured_servers = {}
       for name, server in pairs(servers) do
         local cmd = get_cmd(server.executable, server.args, true)
@@ -246,118 +279,6 @@ return {
       for _, name in ipairs(configured_servers) do
         vim.lsp.enable(name)
       end
-
-      -- LSP keymaps via LspAttach
-      vim.api.nvim_create_autocmd("LspAttach", {
-        desc = "LSP actions and keymaps",
-        callback = function(args)
-          local bufnr = args.buf
-          local client = vim.lsp.get_client_by_id(args.data.client_id)
-          if not client then
-            return
-          end
-
-          local map = vim.keymap.set
-          local opts = { buffer = bufnr, noremap = true, silent = true }
-
-          if client:supports_method("textDocument/formatting") then
-            map(
-              { "n", "v" },
-              "<leader>lf",
-              "<cmd>echo 'Use Conform for formatting (<leader>fd)'<CR>",
-              vim.tbl_extend("force", opts, { desc = "LSP Formatting (Disabled)" })
-            )
-          end
-
-          -- Navigation
-          map(
-            "n",
-            "gD",
-            vim.lsp.buf.declaration,
-            vim.tbl_extend("force", opts, { desc = "Go to Declaration" })
-          )
-          map("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to Definition" }))
-          map(
-            "n",
-            "gi",
-            vim.lsp.buf.implementation,
-            vim.tbl_extend("force", opts, { desc = "Go to Implementation" })
-          )
-          map("n", "gR", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Go to References" }))
-          map(
-            "n",
-            "<leader>D",
-            vim.lsp.buf.type_definition,
-            vim.tbl_extend("force", opts, { desc = "Go to Type Definition" })
-          )
-
-          -- Hover & Signature
-          map("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover Documentation" }))
-          map(
-            "n",
-            "<leader>k",
-            vim.lsp.buf.signature_help,
-            vim.tbl_extend("force", opts, { desc = "Signature Help" })
-          )
-
-          -- Refactoring
-          map(
-            "n",
-            "<leader>rn",
-            vim.lsp.buf.rename,
-            vim.tbl_extend("force", opts, { desc = "Rename Symbol" })
-          )
-          map(
-            { "n", "v" },
-            "<leader>ca",
-            vim.lsp.buf.code_action,
-            vim.tbl_extend("force", opts, { desc = "Code Action" })
-          )
-
-          -- Workspace
-          map(
-            "n",
-            "<leader>wa",
-            vim.lsp.buf.add_workspace_folder,
-            vim.tbl_extend("force", opts, { desc = "Workspace: Add Folder" })
-          )
-          map(
-            "n",
-            "<leader>wr",
-            vim.lsp.buf.remove_workspace_folder,
-            vim.tbl_extend("force", opts, { desc = "Workspace: Remove Folder" })
-          )
-          map("n", "<leader>wl", function()
-            print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-          end, vim.tbl_extend("force", opts, { desc = "Workspace: List Folders" }))
-
-          -- Diagnostics
-          map(
-            "n",
-            "<leader>e",
-            vim.diagnostic.open_float,
-            vim.tbl_extend("force", opts, { desc = "Show Line Diagnostics" })
-          )
-          map(
-            "n",
-            "[d",
-            vim.diagnostic.goto_prev,
-            vim.tbl_extend("force", opts, { desc = "Previous Diagnostic" })
-          )
-          map(
-            "n",
-            "]d",
-            vim.diagnostic.goto_next,
-            vim.tbl_extend("force", opts, { desc = "Next Diagnostic" })
-          )
-          map(
-            "n",
-            "<leader>dq",
-            vim.diagnostic.setloclist,
-            vim.tbl_extend("force", opts, { desc = "Diagnostics Quickfix List" })
-          )
-        end,
-      })
     end,
   },
 }
